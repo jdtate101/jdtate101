@@ -11,7 +11,7 @@ echo "This will install a single node k3s cluster with zfs-csi driver, zfs stora
 echo "It will then install k10 via HELM and automatically expose the k10 dashboard on the cluster load balancer"
 
 echo "Enter drive path of extra volume (ie /dev/sdb). If you do not know this exit this script by cmd-x and run "fdisk -l" to find the drive path: "
-read DRIVE
+read DRIVE < /dev/tty
 
 apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable local-storage" sh -s -
