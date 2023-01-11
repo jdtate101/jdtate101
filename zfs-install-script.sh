@@ -17,9 +17,10 @@ apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable local-storage" sh -s -
 apt install zfsutils-linux -y
 zpool create kasten-pool $DRIVE
-kubectl apply -f https://openebs.github.io/charts/zfs-operator.yaml
-kubectl apply -f https://github.com/jdtate101/jdtate101/blob/main/zfs-sc.yaml
-kubectl apply -f https://github.com/jdtate101/jdtate101/blob/main/zfs-snapclass.yaml
+curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/zfs-sc.yaml > zfs-sc.yaml
+curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/zfs-snapclass.yaml > zfs-snapclass.yaml
+kubectl apply -f zfs-sc.yaml
+kubectl apply -f zfs-snapclass.yaml
 kubectl patch storageclass kasten-zfs -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod +x ./get_helm.sh
