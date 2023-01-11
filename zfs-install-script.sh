@@ -13,7 +13,7 @@ echo -e "$G Simple K10 node installer.....!"
 echo ""
 echo -e "$G This will install a single node k3s cluster with zfs-csi driver, zfs storageclass and k10 annotated volumesnapshotclass"
 echo -e "$G It will then install k10 via HELM and automatically expose the k10 dashboard on the cluster load balancer"
-
+echo ""
 echo -e "$G Enter drive path of extra volume (ie /dev/sdb). If you do not know this exit this script by cmd-x and run "fdisk -l" to find the drive path: "
 echo -e "$W "
 read DRIVE < /dev/tty
