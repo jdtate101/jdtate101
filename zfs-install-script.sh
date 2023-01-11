@@ -77,4 +77,5 @@ echo ""
 echo -e "$G K10 dashboard can be accessed on http://"$ip":"$port"/k10/#/"
 echo -e "$W "
 echo -e "$R It may take a while for all pods to become active. You can check with $G < kubectl get po -n kasten-io > $R wait for the gateway pod to go 1/1 before you go to the URL"
+echo -e "$W "
 exit 
