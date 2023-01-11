@@ -2,6 +2,8 @@
 R='\033[0;31m'      #'0;31' is Red's ANSI color code
 G='\033[0;32m'     #'0;32' is Green's ANSI color code
 W='\033[1;37m'     #'1;37' is White's ANSI color code
+# the following command will set the ubuntu service restart under apt to automatic
+sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
 
 echo -e "$R ____  ___                ___                            __    ____  _____ "
 echo -e "$R|    |/ _|____    _______/  |_  ____   ____             |  | _/_   \   _  \ "
