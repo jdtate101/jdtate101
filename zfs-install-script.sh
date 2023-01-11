@@ -12,21 +12,48 @@ echo "It will then install k10 via HELM and automatically expose the k10 dashboa
 
 echo "Enter drive path of extra volume (ie /dev/sdb). If you do not know this exit this script by cmd-x and run "fdisk -l" to find the drive path: "
 read DRIVE < /dev/tty
+sleep 5
+echo ""
+echo "Patching Ubuntu"
+echo ""
+sleep 5
 pro config set apt_news=false
 apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y
+sleep 5
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable local-storage" sh -s -
+sleep 5
+echo ""
+echo "Installing ZFS and configuring pool"
+echo ""
+sleep 5
 apt install zfsutils-linux -y
 zpool create kasten-pool $DRIVE
+sleep 5
+echo ""
+echo "Installing ZFS Operator, StorageClass & VolumeSnapshotClass"
+echo ""
+sleep 5
+kubectl apply -f https://openebs.github.io/charts/zfs-operator.yaml
 curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/zfs-sc.yaml > zfs-sc.yaml
 curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/zfs-snapclass.yaml > zfs-snapclass.yaml
 kubectl apply -f zfs-sc.yaml
 kubectl apply -f zfs-snapclass.yaml
 kubectl patch storageclass kasten-zfs -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+sleep 5
+echo ""
+echo "Installing Helm"
+echo ""
+sleep 5
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod +x ./get_helm.sh
 ./get_helm.sh
 cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
 helm repo add kasten https://charts.kasten.io
+sleep 5
+echo ""
+echo "Installing Kasten K10"
+echo ""
+sleep 5
 kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace kasten-io
 sleep 60
