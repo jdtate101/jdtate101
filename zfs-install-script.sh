@@ -1,14 +1,14 @@
 #! /bin/bash
-echo"_____  ___                ___                            __    ____  _____ "
-echo"|    |/ _|____    _______/  |_  ____   ____             |  | _/_   \   _  \ "
-echo"|      < \__  \  /  ___/\   __\/ __ \ /    \    ______  |  |/ /|   /  /_\  \ "
-echo"|    |  \ / __ \_\___ \  |  | \  ___/|   |  \  /_____/  |    < |   \  \_/   \ "
-echo"|____|__ (____  /____  > |__|  \___  >___|  /           |__|_ \|___|\_____  / "
-echo"        \/    \/     \/            \/     \/                 \/           \/ "
-echo"Welcome to the script runner!"
-echo""
-echo"This will install a single node k3s cluster with zfs-csi driver, zfs storageclass and k10 annotated volumesnapshotclass"
-echo"It will then install k10 via HELM and automatically expose the k10 dashboard on the cluster load balancer"
+echo "_____  ___                ___                            __    ____  _____ "
+echo "|    |/ _|____    _______/  |_  ____   ____             |  | _/_   \   _  \ "
+echo "|      < \__  \  /  ___/\   __\/ __ \ /    \    ______  |  |/ /|   /  /_\  \ "
+echo "|    |  \ / __ \_\___ \  |  | \  ___/|   |  \  /_____/  |    < |   \  \_/   \ "
+echo "|____|__ (____  /____  > |__|  \___  >___|  /           |__|_ \|___|\_____  / "
+echo "        \/    \/     \/            \/     \/                 \/           \/ "
+echo "Welcome to the script runner!"
+echo ""
+echo "This will install a single node k3s cluster with zfs-csi driver, zfs storageclass and k10 annotated volumesnapshotclass"
+echo "It will then install k10 via HELM and automatically expose the k10 dashboard on the cluster load balancer"
 
 read -p "Enter drive path of extra volume (ie /dev/sdb). If you do not know this exit this script by cmd-x and run "fdisk -l" to find the drive path: " DRIVE
 
