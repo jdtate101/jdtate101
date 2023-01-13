@@ -30,6 +30,7 @@ apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y
 sleep 5
 echo -e "$G Installing k3s single node cluster"
 echo -e "$W "
+sleep 5
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable local-storage" sh -s -
 sleep 5
 echo ""
