@@ -1,3 +1,5 @@
+#./imagepush.sh -t repo.example.com -v 4.5.14 -c podman
+
 #!/bin/bash
 #script to get the commands for pull, re-tag and push K10 images to the private repo
 # COLOR CONSTANTS
