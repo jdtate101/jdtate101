@@ -1,0 +1,18 @@
+FROM ubuntu:latest
+RUN mkdir -p /var/run/sshd
+RUN apt-get update && \
+    apt-get install -y openjdk-8-jdk && \
+    apt-get install -y openssh-server && \
+    apt-get install -y nginx && \
+    apt-get install -y nano && \
+    apt-get install -y curl
+RUN useradd -rm -d /home/veeam -s /bin/bash veeam && echo veeam:xCFYkQ5bXR | chpasswd
+RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+RUN echo "Port 2222" >> /etc/ssh/sshd_config
+RUN mkdir /home/veeam/.ssh && chmod 700 /home/veeam/.ssh
+RUN chown veeam:veeam -R /home/veeam/.ssh
+RUN chown veeam:veeam -R /var/www/html
+COPY startup.sh /
+COPY default /
+RUN chmod 700 startup.sh
+CMD ["/bin/bash","-c","/startup.sh"]
