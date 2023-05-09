@@ -49,7 +49,7 @@ curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/zfs-sc2.yaml 
 curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/zfs-snapclass.yaml > zfs-snapclass.yaml
 kubectl apply -f zfs-sc2.yaml
 kubectl apply -f zfs-snapclass.yaml
-kubectl patch storageclass kasten-zfs-destination -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 sleep 5
 echo ""
 echo -e "$G Installing Helm"
