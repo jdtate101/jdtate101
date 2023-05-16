@@ -63,10 +63,12 @@ helm repo add kasten https://charts.kasten.io
 helm repo add longhorn https://charts.longhorn.io
 sleep 5
 echo ""
-echo -e "$G Installing Longhorn Storage"
+echo -e "$G Installing Longhorn Storage & VolumeSnapshotClass"
 helm repo update
 helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace -f https://raw.githubusercontent.com/jdtate101/jdtate101/main/longhorn-values.yaml
 kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/longsnapclass.yaml > longsnapclass.yaml
+kubectl apply -f longsnapclass.yaml
 sleep 5
 echo -e "$W "
 echo ""
@@ -89,5 +91,7 @@ echo ""
 echo -e "$G K10 dashboard can be accessed on http://"$ip":"$port"/k10/#/"
 echo -e "$W "
 echo -e "$R It may take a while for all pods to become active. You can check with $G < kubectl get po -n kasten-io > $R wait for the gateway pod to go 1/1 before you go to the URL"
+echo -e "$W "
+echo -e "$R If you wish to access the longhorn UI you need to create an entry in your /etc/hosts file or local DNS for longhorn.local to point to IP Address: $ip ,then browse to http://longhorn.local"
 echo -e "$W "
 exit 
