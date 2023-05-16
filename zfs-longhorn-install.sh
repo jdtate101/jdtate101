@@ -77,7 +77,7 @@ echo -e "$G Installing Kasten K10"
 echo -e "$W "
 sleep 5
 kubectl create ns kasten-io
-helm install k10 kasten/k10 --namespace kasten-io
+helm install k10 kasten/k10 --namespace kasten-io --set "auth.basicAuth.enabled=true" --set auth.basicAuth.htpasswd='admin:$apr1$8zcmbpi0$1/qHTdnd3Z55zFdvsokTr.'
 echo ""
 echo -e "$R Please wait for 60sec whilst we wait for the pods to spin up..."
 echo -e "$R After this period the external URL for K10 access will display (DO NOT exit this script)"
