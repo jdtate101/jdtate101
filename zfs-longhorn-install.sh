@@ -85,7 +85,6 @@ echo ""
 echo -e "$G Installing Longhorn Storage & VolumeSnapshotClass"
 helm repo update
 helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace -f https://raw.githubusercontent.com/jdtate101/jdtate101/main/longhorn-values.yaml
-kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/longsnapclass.yaml > longsnapclass.yaml
 kubectl apply -f longsnapclass.yaml
 sleep 5
