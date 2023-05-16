@@ -66,6 +66,7 @@ echo ""
 echo -e "$G Installing Longhorn Storage"
 helm repo update
 helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace -f https://raw.githubusercontent.com/jdtate101/jdtate101/main/longhorn-values.yaml
+kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 sleep 5
 echo -e "$W "
 echo ""
@@ -83,6 +84,7 @@ pod=$(kubectl get po -n kasten-io |grep gateway | awk '{print $1}' )
 kubectl expose po $pod -n kasten-io --type=LoadBalancer --port=8000 --name=k10-dashboard
 ip=$(curl -s ifconfig.io)
 port=$(kubectl get svc -n kasten-io |grep k10-dashboard | cut -d':' -f2- | cut -f1 -d'/' )
+echo "127.0.0.1  longhorn.local" >> /etc/hosts
 echo ""
 echo -e "$G K10 dashboard can be accessed on http://"$ip":"$port"/k10/#/"
 echo -e "$W "
