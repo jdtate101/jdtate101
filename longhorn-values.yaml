@@ -3,6 +3,7 @@ ingress:
   host: longhorn.local
 persistence:
   defaultClassReplicaCount: 1
+  defaultClass: false
 csi:
   attacherReplicaCount: 1
   provisionerReplicaCount: 1
