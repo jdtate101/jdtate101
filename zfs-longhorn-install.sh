@@ -27,10 +27,10 @@ echo -e "$G K10 will be install with Basic Authentication enabled and you need t
 sleep 1
 echo -e "$W"
 echo "Enter the username: "
-read -r username
+read username < /dev/tty
 echo ""
 echo "Enter the password: "
-read -rs password
+read password < /dev/tty
 htpasswd_entry=$(htpasswd -nbm "$username" "$password" | cut -d ":" -f 2)
 htpasswd="$username:$htpasswd_entry"
 echo "Successfully generated htpasswd entry: $htpasswd"
