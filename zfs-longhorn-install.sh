@@ -4,6 +4,7 @@ G='\033[0;32m'     #'0;32' is Green's ANSI color code
 W='\033[1;37m'     #'1;37' is White's ANSI color code
 # the following command will set the ubuntu service restart under apt to automatic
 sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
+echo -e "$G Installing pre-req's...please standby..."
 apt update
 apt -qq install apache2-utils -y
 echo -e "$R ____  ___                ___                            __    ____  _____ "
