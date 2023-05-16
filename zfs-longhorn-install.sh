@@ -64,7 +64,10 @@ sleep 5
 echo ""
 echo -e "$G Installing ZFS Operator, StorageClass & VolumeSnapshotClass"
 echo -e "$W "
-sleep 5
+echo ""
+echo -e "$R Waiting 60s for k3s to fully start!!"
+echo -e "$W"
+sleep 60
 kubectl apply -f https://openebs.github.io/charts/zfs-operator.yaml
 curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/zfs-sc.yaml > zfs-sc.yaml
 curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/zfs-snapclass.yaml > zfs-snapclass.yaml
