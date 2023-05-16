@@ -12,10 +12,28 @@ echo -e "$R|    |  \ / __ \_\___ \  |  | \  ___/|   |  \  /_____/  |    < |   \ 
 echo -e "$R|____|__ (____  /____  > |__|  \___  >___|  /           |__|_ \|___|\_____  / "
 echo -e "$R        \/    \/     \/            \/     \/                 \/           \/ "
 echo -e "$G Simple K10 node installer.....!"
+sleep 1
 echo ""
 echo -e "$G This will install a single node k3s cluster with the OpenEBS ZFS csi driver, Longhorn csi driver and all k10 annotated volumesnapshotclasses"
+sleep 1
+echo ""
 echo -e "$G Longhorn will operate in single REPLICA mode, so this cluster cannot have additional worker nodes added to it"
+sleep 1
+echo ""
 echo -e "$G It will then install k10 via HELM and automatically expose the k10 dashboard on the cluster load balancer"
+sleep 1
+echo ""
+echo -e "$G K10 will be install with Basic Authentication enabled and you need to enter the username and password you wish to use next: "
+sleep 1
+echo -e "$W"
+echo "Enter the username: "
+read -r username
+echo ""
+echo "Enter the password: "
+read -rs password
+htpasswd_entry=$(htpasswd -nbm "$username" "$password" | cut -d ":" -f 2)
+htpasswd="$username:$htpasswd_entry"
+echo "Successfully generated htpasswd entry: $htpasswd"
 echo ""
 echo -e "$G Enter drive path of extra volume (ie /dev/sdb). If you do not know this exit this script by cmd-x and run "fdisk -l" to find the drive path: "
 echo -e "$W "
@@ -77,7 +95,7 @@ echo -e "$G Installing Kasten K10"
 echo -e "$W "
 sleep 5
 kubectl create ns kasten-io
-helm install k10 kasten/k10 --namespace kasten-io --set "auth.basicAuth.enabled=true" --set auth.basicAuth.htpasswd='admin:$apr1$8zcmbpi0$1/qHTdnd3Z55zFdvsokTr.'
+helm install k10 kasten/k10 --namespace kasten-io --set "auth.basicAuth.enabled=true" --set auth.basicAuth.htpasswd=$htpasswd
 echo ""
 echo -e "$R Please wait for 60sec whilst we wait for the pods to spin up..."
 echo -e "$R After this period the external URL for K10 access will display (DO NOT exit this script)"
