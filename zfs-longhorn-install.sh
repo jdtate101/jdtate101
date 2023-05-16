@@ -5,7 +5,7 @@ W='\033[1;37m'     #'1;37' is White's ANSI color code
 # the following command will set the ubuntu service restart under apt to automatic
 sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
 apt update
-apt install apache2-utils -y
+apt -qq install apache2-utils -y
 echo -e "$R ____  ___                ___                            __    ____  _____ "
 echo -e "$R|    |/ _|____    _______/  |_  ____   ____             |  | _/_   \   _  \ "
 echo -e "$R|      < \__  \  /  ___/\   __\/ __ \ /    \    ______  |  |/ /|   /  /_\  \ "
@@ -46,7 +46,7 @@ echo ""
 sleep 5
 echo -e "$W " 
 pro config set apt_news=false
-apt update && apt upgrade -y && apt dist-upgrade -y && apt autoremove -y
+apt -qq update && apt -qq upgrade -y && apt -qq dist-upgrade -y && apt -qq autoremove -y
 sleep 5
 echo -e "$G Installing k3s single node cluster"
 echo -e "$W "
