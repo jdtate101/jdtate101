@@ -129,7 +129,7 @@ echo -e "$W"
 wget https://dl.min.io/server/minio/release/linux-amd64/minio_20230504214430.0.0_amd64.deb
 dpkg -i minio_20230504214430.0.0_amd64.deb
 mkdir /minio
-MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /mnt/data --console-address ":9001" 2>&1 /dev/null
+MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /mnt/data --console-address ":9001" &
 echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001"" > /home/root/minio_cron
 crontab minio_cron
 echo -e "$G"
