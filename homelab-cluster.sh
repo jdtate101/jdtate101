@@ -149,6 +149,6 @@ kubectl expose po $pacpod -n pacman --type=NodePort --port=80 --name=pacman-http
 pacport=$(kubectl get svc -n pacman |grep pacman-http | cut -d':' -f2- | cut -f1 -d'/' )
 echo -e "$G"
 echo ""
-echo "Pacman application is exposed on http://"$ip":"$pacport"/"
+echo "Pacman application is exposed using a NodePort on http://"$ip":"$pacport"/"
 echo -e "$W"
 exit 
