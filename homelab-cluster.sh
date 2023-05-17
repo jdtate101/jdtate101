@@ -145,7 +145,7 @@ echo -e "$R"
 echo "Waiting for pacman app to become available..please wait!"
 sleep 60
 pacpod=$(kubectl get po -n pacman -o json | jq '.items[].metadata.name' | grep -vE 'mongo' | tr -d '"')
-kubectl expose po $pacpod -n pacman --type=LoadBalancer --port=80 --name=pacman-http
+kubectl expose po $pacpod -n pacman --type=NodePort --port=80 --name=pacman-http
 pacport=$(kubectl get svc -n pacman |grep pacman-http | cut -d':' -f2- | cut -f1 -d'/' )
 echo -e "$G"
 echo ""
