@@ -150,4 +150,5 @@ pacport=$(kubectl get svc -n pacman |grep pacman-http | cut -d':' -f2- | cut -f1
 echo -e "$G"
 echo ""
 echo "Pacman application is exposed on http://"$ip":"$pacport"/"
+echo -e "$W"
 exit 
