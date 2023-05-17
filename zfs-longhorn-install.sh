@@ -88,6 +88,7 @@ helm repo add longhorn https://charts.longhorn.io
 sleep 5
 echo ""
 echo -e "$G Installing Longhorn Storage & VolumeSnapshotClass"
+echo -e "$W "
 helm repo update
 helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace -f https://raw.githubusercontent.com/jdtate101/jdtate101/main/longhorn-values.yaml
 curl -s https://raw.githubusercontent.com/jdtate101/jdtate101/main/longsnapclass.yaml > longsnapclass.yaml
@@ -98,6 +99,10 @@ echo ""
 echo -e "$G Installing Kasten K10"
 echo -e "$W "
 sleep 5
+sysctl fs.inotify.max_user_watches=524288
+sysctl fs.inotify.max_user_instances=512
+echo "fs.inotify.max_user_watches = 524288" >> /etc/sysctl.conf
+echo "fs.inotify.max_user_instances = 512" >> /etc/sysctl.conf
 kubectl create ns kasten-io
 helm install k10 kasten/k10 --namespace kasten-io --set "auth.basicAuth.enabled=true" --set auth.basicAuth.htpasswd=$htpasswd
 echo ""
