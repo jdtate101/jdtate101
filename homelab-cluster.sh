@@ -143,12 +143,16 @@ helm repo add pacman https://shuguet.github.io/pacman/
 helm install pacman pacman/pacman -n pacman
 echo -e "$R"
 echo "Waiting for pacman app to become available..please wait!"
-sleep 60
-pacpod=$(kubectl get po -n pacman -o json | jq '.items[].metadata.name' | grep -vE 'mongo' | tr -d '"')
-kubectl expose po $pacpod -n pacman --type=NodePort --port=80 --name=pacman-http
-pacport=$(kubectl get svc -n pacman |grep pacman-http | cut -d':' -f2- | cut -f1 -d'/' )
+sleep 5
+curl https://raw.githubusercontent.com/jdtate101/jdtate101/main/pacman-ingress.yaml > pacman-ingress.yaml
+kubectl apply -f pacman-ingress.yaml -n pacman
 echo -e "$G"
 echo ""
-echo "Pacman application is exposed using a NodePort on http://"$ip":"$pacport"/"
+echo "Pacman application is exposed using an ingress rule. Please create a entry in your desktop /etc/hosts file or local DNS to point towards $ip for pacman.local"
+echo "You can then access the pacman app on http://pacman.local"
 echo -e "$W"
+echo ""
+sleep 2
+echo -e "$R"
+echo "Hope you enjoy the Kasten environment....."
 exit 
