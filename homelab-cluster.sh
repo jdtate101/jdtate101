@@ -153,6 +153,8 @@ echo "You can then access the pacman app on http://pacman.local"
 echo -e "$W"
 echo ""
 sleep 2
-echo -e "$R"
+echo -e "$G"
 echo "Hope you enjoy the Kasten environment....."
+echo -e "$W"
+echo ""
 exit 
