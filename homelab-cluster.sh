@@ -130,8 +130,8 @@ wget https://dl.min.io/server/minio/release/linux-amd64/minio_20230504214430.0.0
 dpkg -i minio_20230504214430.0.0_amd64.deb
 mkdir /minio
 MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /mnt/data --console-address ":9001" &
-echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001"" > /home/root/minio_cron
-crontab minio_cron
+echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001"" > /home/minio_cron
+crontab /root/minio_cron
 echo -e "$G"
 echo "Minio console is available on http://localhost:9001 with the same username/password you set for the K10 instance, and the API available on port 9000"
 sleep 2
