@@ -126,8 +126,9 @@ sleep 5
 echo -e "$G"
 echo "Installing minio S3 Storage.."
 echo -e "$W"
-wget https://dl.min.io/server/minio/release/linux-amd64/minio_20230504214430.0.0_amd64.deb
-dpkg -i minio_20230504214430.0.0_amd64.deb
+wget https://dl.min.io/server/minio/release/linux-amd64/minio -P /root
+chmod +x /root/minio
+mv /root/minio /usr/local/bin
 mkdir /minio
 MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001" &
 echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001"" > /root/minio_cron
