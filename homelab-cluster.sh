@@ -2,12 +2,10 @@
 R='\033[0;31m'      #'0;31' is Red's ANSI color code
 G='\033[0;32m'     #'0;32' is Green's ANSI color code
 W='\033[1;37m'     #'1;37' is White's ANSI color code
-MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE
-MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-MINIO_BUCKET=kasten
 # the following command will set the ubuntu service restart under apt to automatic
 sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
 echo -e "$G Installing pre-req's...please standby..."
+sleep 10
 apt update
 apt -qq install apache2-utils -y
 echo -e "$R ____  ___                ___                            __    ____  _____ "
@@ -134,7 +132,7 @@ chmod +x /root/minio
 mv /root/minio /usr/local/bin
 mkdir /minio
 MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001" &
-echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY MINIO_SECRET_KEY=$MINIO_SECRET_KEY MINIO_BUCKET=$MINIO_BUCKET minio server /minio --console-address ":9001"" > /root/minio_cron
+echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001"" > /root/minio_cron
 crontab /root/minio_cron
 echo -e "$G"
 echo "Minio console is available on http://localhost:9001 with the same username/password you set for the K10 instance, and the API available on port 9000"
