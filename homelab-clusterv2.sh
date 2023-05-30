@@ -116,12 +116,8 @@ kubectl expose po $pod -n kasten-io --type=LoadBalancer --port=8000 --name=k10-d
 ip=$(curl -s ifconfig.io)
 port=$(kubectl get svc -n kasten-io |grep k10-dashboard | cut -d':' -f2- | cut -f1 -d'/' )
 echo ""
-get_public_ip() {
-    curl -s ifconfig.me
-}
-get_local_ip() {
-    hostname -I | awk '{print $1}'
-}
+get_public_ip=$(curl -s ifconfig.me)
+get_local_ip=$(hostname -I | awk '{print $1}')
 if [[ -n "$AWS_EXECUTION_ENV" || -n "$AWS_REGION" || -n "$AWS_DEFAULT_REGION" ]]; then
     echo "Running on AWS"
     # echo "Public IP: $(get_public_ip)"
