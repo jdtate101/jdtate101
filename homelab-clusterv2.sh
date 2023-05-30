@@ -160,6 +160,8 @@ echo -e "$G"
 echo ""
 echo "Pacman application is exposed using an ingress rule. Please create a entry in your desktop /etc/hosts file or local DNS to point towards $ip for pacman.local"
 echo "You can then access the pacman app on http://pacman.local"
+echo ""
+echo "The longhorn dashboard UI is available at http://longhorn.local . Please create an entry in the host file to access, much in the same fashion as you just did for the pacman app."
 echo -e "$W"
 echo ""
 sleep 2
