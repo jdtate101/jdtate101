@@ -115,9 +115,51 @@ pod=$(kubectl get po -n kasten-io |grep gateway | awk '{print $1}' )
 kubectl expose po $pod -n kasten-io --type=LoadBalancer --port=8000 --name=k10-dashboard
 ip=$(curl -s ifconfig.io)
 port=$(kubectl get svc -n kasten-io |grep k10-dashboard | cut -d':' -f2- | cut -f1 -d'/' )
-echo "127.0.0.1  longhorn.local" >> /etc/hosts
 echo ""
-echo -e "$G K10 dashboard can be accessed on http://"$ip":"$port"/k10/#/"
+get_public_ip() {
+    curl -s ifconfig.me
+}
+get_local_ip() {
+    hostname -I | awk '{print $1}'
+}
+if [[ -n "$AWS_EXECUTION_ENV" || -n "$AWS_REGION" || -n "$AWS_DEFAULT_REGION" ]]; then
+    echo "Running on AWS"
+    # echo "Public IP: $(get_public_ip)"
+    echo -e "$G K10 dashboard can be accessed on http://"$get_public_ip":"$port"/k10/#/"
+elif [[ -n "$AZURE_REGIONNAME" || -n "$AZURE_WT_REGION" ]]; then
+    echo "Running on Azure"
+    # echo "Public IP: $(get_public_ip)"
+    echo -e "$G K10 dashboard can be accessed on http://"$get_public_ip":"$port"/k10/#/"
+elif [[ -n "$GOOGLE_CLOUD_PROJECT" ]]; then
+    echo "Running on Google Cloud"
+    # echo "Public IP: $(get_public_ip)"
+    echo -e "$G K10 dashboard can be accessed on http://"$get_public_ip":"$port"/k10/#/"
+elif [[ -n "$OCI_REGION" ]]; then
+    echo "Running on Oracle Cloud"
+    # echo "Public IP: $(get_public_ip)"
+    echo -e "$G K10 dashboard can be accessed on http://"$get_public_ip":"$port"/k10/#/"
+elif [[ -n "$ALIBABA_CLOUD_REGION" ]]; then
+    echo "Running on Alibaba Cloud"
+    # echo "Public IP: $(get_public_ip)"
+    echo -e "$G K10 dashboard can be accessed on http://"$get_public_ip":"$port"/k10/#/"
+elif [[ -n "$IBM_CLOUD_REGION" ]]; then
+    echo "Running on IBM Cloud"
+    # echo "Public IP: $(get_public_ip)"
+    echo -e "$G K10 dashboard can be accessed on http://"$get_public_ip":"$port"/k10/#/"
+else
+    # Check if running on a local VM
+    dmidecode -s system-manufacturer | grep -qi "vmware\|virtualbox\|qemu\|kvm"
+    if [[ $? -eq 0 ]]; then
+        echo "Running on a local virtual machine"
+        # echo "Public IP: $(get_public_ip)"
+        echo -e "$G K10 dashboard can be accessed on http://"$get_local_ip":"$port"/k10/#/"
+    else
+        echo "Running on a local physical machine"
+        # echo "Local IP: $(get_local_ip)"
+        echo -e "$G K10 dashboard can be accessed on http://"$get_local_ip":"$port"/k10/#/"
+    fi
+fi
+# echo -e "$G K10 dashboard can be accessed on http://"$ip":"$port"/k10/#/"
 echo -e "$W "
 echo -e "$R It may take a while for all pods to become active. You can check with $G < kubectl get po -n kasten-io > $R wait for the gateway pod to go 1/1 before you go to the URL"
 echo -e "$W "
