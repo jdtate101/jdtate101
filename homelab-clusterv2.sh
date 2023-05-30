@@ -113,7 +113,6 @@ sleep 60
 echo -e "$W "
 pod=$(kubectl get po -n kasten-io |grep gateway | awk '{print $1}' )
 kubectl expose po $pod -n kasten-io --type=LoadBalancer --port=8000 --name=k10-dashboard
-ip=$(curl -s ifconfig.io)
 port=$(kubectl get svc -n kasten-io |grep k10-dashboard | cut -d':' -f2- | cut -f1 -d'/' )
 echo ""
 get_public_ip=$(curl -s ifconfig.me)
@@ -163,10 +162,10 @@ MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --co
 echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001"" > /root/minio_cron
 crontab /root/minio_cron
 echo -e "$G"
-echo "Minio console is available on http://localhost:9001 with the same username/password you set for the K10 instance, and the API available on port 9000"
+echo "Minio console is available on port 9001 for the same IP address as the K10 interface (listed above), with the same username/password you set for the K10 instance, and the API available on port 9000"
 sleep 2
 echo ""
-echo "Now deployming sample pacman application..."
+echo "Now deploying sample pacman application..."
 echo -e "$W"
 kubectl create ns pacman
 helm repo add pacman https://shuguet.github.io/pacman/
