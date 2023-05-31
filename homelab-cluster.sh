@@ -7,7 +7,8 @@ sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /e
 echo -e "$G Installing pre-req's...please standby..."
 sleep 10
 apt update
-apt -qq install apache2-utils -y
+apt -qq install apache2-utils ruby-rubygems -y
+gem install facter
 echo -e "$R ____  ___                ___                            __    ____  _____ "
 echo -e "$R|    |/ _|____    _______/  |_  ____   ____             |  | _/_   \   _  \ "
 echo -e "$R|      < \__  \  /  ___/\   __\/ __ \ /    \    ______  |  |/ /|   /  /_\  \ "
@@ -113,11 +114,18 @@ sleep 60
 echo -e "$W "
 pod=$(kubectl get po -n kasten-io |grep gateway | awk '{print $1}' )
 kubectl expose po $pod -n kasten-io --type=LoadBalancer --port=8000 --name=k10-dashboard
-ip=$(curl -s ifconfig.io)
 port=$(kubectl get svc -n kasten-io |grep k10-dashboard | cut -d':' -f2- | cut -f1 -d'/' )
-echo "127.0.0.1  longhorn.local" >> /etc/hosts
 echo ""
-echo -e "$G K10 dashboard can be accessed on http://"$ip":"$port"/k10/#/"
+get_public_ip=$(curl -s ifconfig.me)
+get_local_ip=$(hostname -I | awk '{print $1}')
+cloud_id=$(facter cloud |grep provider | cut -d'"' -f 2)
+    if [[ ! -z $cloud_id ]]; then
+        echo "Running on a cloud virtual machine"
+        echo -e "$G K10 dashboard can be accessed on http://"$get_public_ip":"$port"/k10/#/"
+    else
+	echo "Running on a local machine / virtual machine"
+	echo -e "$G K10 dashboard can be accessed on http://"$get_local_ip":"$port"/k10/#/"
+    fi
 echo -e "$W "
 echo -e "$R It may take a while for all pods to become active. You can check with $G < kubectl get po -n kasten-io > $R wait for the gateway pod to go 1/1 before you go to the URL"
 echo -e "$W "
@@ -135,10 +143,10 @@ MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --co
 echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001"" > /root/minio_cron
 crontab /root/minio_cron
 echo -e "$G"
-echo "Minio console is available on http://localhost:9001 with the same username/password you set for the K10 instance, and the API available on port 9000"
+echo "Minio console is available on port 9001 for the same IP address as the K10 interface (listed above), with the same username/password you set for the K10 instance, and the API available on port 9000"
 sleep 2
 echo ""
-echo "Now deployming sample pacman application..."
+echo "Now deploying sample pacman application..."
 echo -e "$W"
 kubectl create ns pacman
 helm repo add pacman https://shuguet.github.io/pacman/
@@ -152,6 +160,8 @@ echo -e "$G"
 echo ""
 echo "Pacman application is exposed using an ingress rule. Please create a entry in your desktop /etc/hosts file or local DNS to point towards $ip for pacman.local"
 echo "You can then access the pacman app on http://pacman.local"
+echo ""
+echo "The longhorn dashboard UI is available at http://longhorn.local . Please create an entry in the host file to access, much in the same fashion as you just did for the pacman app."
 echo -e "$W"
 echo ""
 sleep 2
