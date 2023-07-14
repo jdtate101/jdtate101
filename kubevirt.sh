@@ -4,18 +4,13 @@ G='\033[0;32m'     #'0;32' is Green's ANSI color code
 W='\033[1;37m'     #'1;37' is White's ANSI color code
 # the following command will set the ubuntu service restart under apt to automatic
 sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
-echo -e "$G Installing pre-req's...please standby..."
-sleep 10
-apt update
-apt -qq install apache2-utils ruby-rubygems -y
-gem install facter
 echo -e "$R ____  ___                ___                            __    ____  _____ "
 echo -e "$R|    |/ _|____    _______/  |_  ____   ____             |  | _/_   \   _  \ "
 echo -e "$R|      < \__  \  /  ___/\   __\/ __ \ /    \    ______  |  |/ /|   /  /_\  \ "
 echo -e "$R|    |  \ / __ \_\___ \  |  | \  ___/|   |  \  /_____/  |    < |   \  \_/   \ "
 echo -e "$R|____|__ (____  /____  > |__|  \___  >___|  /           |__|_ \|___|\_____  / "
 echo -e "$R        \/    \/     \/            \/     \/                 \/           \/ "
-echo -e "$G Simple K10 node installer.....!"
+echo -e "$G Simple Kubevirtnode installer.....!"
 sleep 1
 echo ""
 echo -e "$G This will install a single node k3s cluster with the OpenEBS ZFS csi driver, Longhorn csi driver and all k10 annotated volumesnapshotclasses"
@@ -28,6 +23,9 @@ echo -e "$G It will then install k10 via HELM and automatically expose the k10 d
 sleep 1
 echo ""
 echo -e "$G K10 will be install with Basic Authentication enabled and you need to enter the username and password you wish to use next: "
+echo ""
+sleep 1
+echo -e "$G It will also install all the kubevirt component, tools and CRDs"
 sleep 1
 echo -e "$W"
 echo "Enter the username: "
@@ -60,7 +58,7 @@ echo ""
 echo -e "$G Installing ZFS and configuring pool"
 echo -e "$W "
 sleep 5
-apt install zfsutils-linux open-iscsi jq -y
+apt install zfsutils-linux open-iscsi jq git -y
 zpool create kasten-pool $DRIVE
 sleep 5
 echo ""
@@ -131,40 +129,23 @@ echo -e "$R It may take a while for all pods to become active. You can check wit
 echo -e "$W "
 echo -e "$R If you wish to access the longhorn UI you need to create an entry in your /etc/hosts file or local DNS for longhorn.local to point to IP Address: $ip ,then browse to http://longhorn.local"
 echo -e "$W "
-sleep 5
-echo -e "$G"
-echo "Installing minio S3 Storage.."
-echo -e "$W"
-wget https://dl.min.io/server/minio/release/linux-amd64/minio -P /root
-chmod +x /root/minio
-mv /root/minio /usr/local/bin
-mkdir /minio
-MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001" &
-echo "@reboot MINIO_ROOT_USER=$username MINIO_ROOT_PASSWORD=$password minio server /minio --console-address ":9001"" > /root/minio_cron
-crontab /root/minio_cron
-echo -e "$G"
-echo "Minio console is available on port 9001 for the same IP address as the K10 interface (listed above), with the same username/password you set for the K10 instance, and the API available on port 9000"
-sleep 2
-echo ""
-echo "Now deploying sample pacman application..."
-echo -e "$W"
-kubectl create ns pacman
-helm repo add pacman https://shuguet.github.io/pacman/
-helm install pacman pacman/pacman -n pacman
-echo -e "$R"
-echo "Waiting for pacman app to become available..please wait!"
-sleep 5
-curl https://raw.githubusercontent.com/jdtate101/jdtate101/main/pacman-ingress.yaml > pacman-ingress.yaml
-kubectl apply -f pacman-ingress.yaml -n pacman
-echo -e "$G"
-echo ""
-echo "Pacman application is exposed using an ingress rule. Please create a entry in your desktop /etc/hosts file or local DNS to point towards $ip for pacman.local"
-echo "You can then access the pacman app on http://pacman.local"
-echo ""
 echo "The longhorn dashboard UI is available at http://longhorn.local . Please create an entry in the host file to access, much in the same fashion as you just did for the pacman app."
-echo -e "$W"
-echo ""
 sleep 2
+echo ""
+echo "Starting setup of Kubevirt environment.."
+sleep 1
+export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
+kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
+kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
+(   set -x; cd "$(mktemp -d)" &&   curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/download/v0.4.3/krew-linux_amd64.tar.gz" &&   tar zxvf krew-linux_amd64.tar.gz &&   KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_$(uname -m | sed -e 's/x86_64/amd64/' -e 's/arm.*$/arm/')" &&   "$KREW" install krew; )
+export PATH="${PATH}:${HOME}/.krew/bin"
+echo "export PATH="${PATH}:${HOME}/.krew/bin"" >> /root/.bashrc
+kubectl krew install virt
+export CDIVERSION=v0.41.0
+kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDIVERSION/cdi-operator.yaml
+kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDIVERSION/cdi-cr.yaml
+echo ""
+ctr image pull docker.io/kubevirt/virtio-container-disk:latest -k
 echo -e "$G"
 echo "Hope you enjoy the Kasten environment....."
 echo -e "$W"
