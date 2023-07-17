@@ -1,3 +1,4 @@
+#! /bin/bash
 echo "Starting setup of Kubevirt environment.."
 sleep 1
 export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
