@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: winhd
+  name: win10hd-pvc
 spec:
   accessModes:
     - ReadWriteOnce
@@ -41,14 +41,14 @@ spec:
           type: q35
         resources:
           requests:
-            memory: 4G
+            memory: 8G
       volumes:
       - name: cdromiso
         persistentVolumeClaim:
           claimName: win10cd-pvc
       - name: harddrive
         persistentVolumeClaim:
-          claimName: winhd
+          claimName: win10hd-pvc
       - containerDisk:
           image: quay.io/kubevirt/virtio-container-disk
         name: virtiocontainerdisk
