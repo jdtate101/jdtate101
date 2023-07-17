@@ -13,7 +13,7 @@ sleep 1
 export PATH="${PATH}:${HOME}/.krew/bin"
 echo "export PATH="${PATH}:${HOME}/.krew/bin"" >> /root/.bashrc
 kubectl krew install virt
-export CDIVERSION=v1.54.3
+export CDIVERSION=$(curl -s https://api.github.com/repos/kubevirt/containerized-data-importer/releases | grep tag_name | grep -v -- '-rc' | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
 kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDIVERSION/cdi-operator.yaml
 kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDIVERSION/cdi-cr.yaml
 echo ""
