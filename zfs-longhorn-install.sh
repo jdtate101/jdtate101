@@ -32,10 +32,10 @@ echo "Enter the username: "
 read username < /dev/tty
 echo ""
 echo "Enter the password: "
-read password < /dev/tty
-htpasswd_entry=$(htpasswd -nbm "$username" "$password" | cut -d ":" -f 2)
-htpasswd="$username:$htpasswd_entry"
-echo "Successfully generated htpasswd entry: $htpasswd"
+#read password < /dev/tty
+#htpasswd_entry=$(htpasswd -nbm "$username" "$password" | cut -d ":" -f 2)
+#htpasswd="$username:$htpasswd_entry"
+#echo "Successfully generated htpasswd entry: $htpasswd"
 echo ""
 echo -e "$G Enter drive path of extra volume (ie /dev/sdb). If you do not know this exit this script by cmd-x and run "fdisk -l" to find the drive path: "
 echo -e "$W "
@@ -104,7 +104,7 @@ sysctl fs.inotify.max_user_instances=512
 echo "fs.inotify.max_user_watches = 524288" >> /etc/sysctl.conf
 echo "fs.inotify.max_user_instances = 512" >> /etc/sysctl.conf
 kubectl create ns kasten-io
-helm install k10 kasten/k10 --namespace kasten-io --set "auth.basicAuth.enabled=true" --set auth.basicAuth.htpasswd=$htpasswd
+helm install k10 kasten/k10 --namespace kasten-io
 echo ""
 echo -e "$R Please wait for 60sec whilst we wait for the pods to spin up..."
 echo -e "$R After this period the external URL for K10 access will display (DO NOT exit this script)"
