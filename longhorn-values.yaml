@@ -1,6 +1,3 @@
-ingress:
-  enabled: true
-  host: longhorn.local
 persistence:
   defaultClassReplicaCount: 1
   defaultClass: false
