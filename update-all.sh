@@ -1,4 +1,4 @@
-SSHPAS=Sh1njuku02
+SSHPAS=*********
 neofetch
 sudo aptitude update --no-gui && sudo aptitude safe-upgrade -y --no-gui && sudo aptitude autoclean -y --no-gui
 echo "*********************"
