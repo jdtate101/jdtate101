@@ -1,8 +1,8 @@
 #!/bin/bash
 
-mydomain="kodu.uk"
+mydomain="your_domain"
 myhostname="@"
-gdapikey="e4MzvNDEGarF_31NoFzfBXbvkSHMxUeWZNK:FHtjcK7N9eQ6VqhXDWRMM9"
+gdapikey="******************************************"
 logdest="local7.info"
 
 myip=`curl -s "https://api.ipify.org"`
