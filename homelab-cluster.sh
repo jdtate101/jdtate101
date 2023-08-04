@@ -116,6 +116,8 @@ echo -e "$W "
 pod=$(kubectl get po -n kasten-io |grep gateway | awk '{print $1}' )
 kubectl expose po $pod -n kasten-io --type=LoadBalancer --port=8000 --name=k10-dashboard
 port=$(kubectl get svc -n kasten-io |grep k10-dashboard | cut -d':' -f2- | cut -f1 -d'/' )
+curl https://raw.githubusercontent.com/jdtate101/jdtate101/main/kasten-ingress.yaml > kasten-ingress.yaml
+kubectl apply -f kasten-ingress.yaml -n kasten-io
 echo ""
 get_public_ip=$(curl -s ifconfig.me)
 get_local_ip=$(hostname -I | awk '{print $1}')
