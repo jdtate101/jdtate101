@@ -54,7 +54,7 @@ sleep 5
 echo -e "$G Installing k3s single node cluster"
 echo -e "$W "
 sleep 5
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.26" INSTALL_K3S_EXEC="--disable local-storage" sh -s -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable local-storage" sh -s -
 sleep 5
 echo ""
 echo -e "$G Installing ZFS and configuring pool"
