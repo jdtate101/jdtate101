@@ -1,17 +1,24 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: virtmgnt-ingress
+  creationTimestamp: "2023-08-01T09:53:53Z"
+  generation: 1
+  name: kubevirt-manager-ingress
   namespace: kubevirt-manager
 spec:
+  ingressClassName: traefik
   rules:
-    - host: kubevirtmanager.local
-      http:
-        paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: kubevirt-manager
-                port:
-                  number: 8080
+  - host: kubevirt-manager.lab.home
+    http:
+      paths:
+      - backend:
+          service:
+            name: kubevirt-manager
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.100.4
