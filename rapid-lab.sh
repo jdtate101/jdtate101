@@ -206,4 +206,6 @@ echo "Install Virtctl..."
 echo ""
 (  set -x; cd "$(mktemp -d)" &&  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" && VIRTCTL="virtctl-v${VERSION}-${OS}-${ARCH}" && wget "https://github.com/kubevirt/kubevirt/releases/download/v${VERSION}/${VIRTCTL}" && mv virtctl* /usr/local/bin/virtctl && chmod +x /usr/local/bin/virtctl )
 echo ""
+curl https://raw.githubusercontent.com/jdtate101/jdtate101/main/virt-manager-ingress.yaml > kubevirt-ingress.yaml
+kubectl apply -f kubevirt-ingress.yaml -n kubevirt-manager
 exit  
