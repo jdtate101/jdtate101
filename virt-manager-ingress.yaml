@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: virtmgnt-ingress
+  namespace: kubevirt-manager
+spec:
+  rules:
+    - host: kubevirtmanager.local
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: kubevirt-manager
+                port:
+                  number: 8080
