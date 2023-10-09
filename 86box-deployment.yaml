@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: 86box
+  name: 86box
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: 86box
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: 86box
+    spec:
+      containers:
+      - image: blaize/86box
+        imagePullPolicy: ""
+        name: 86box
+        ports:
+        - containerPort: 80
+        resources: {}
+        volumeMounts:
+        - mountPath: /isos
+          name: 86box-claim0
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: 86box-claim0
+        persistentVolumeClaim:
+          claimName: 86box-claim0
+status: {}
