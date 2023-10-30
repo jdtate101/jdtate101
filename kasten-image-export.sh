@@ -7,7 +7,7 @@ EXPORT_DIR="image_exports"
 # Create the export directory if it doesn't exist
 mkdir -p "$EXPORT_DIR"
 docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock gcr.io/kasten-images/k10offline:$VERSION pull images
-# List images that contain "kasten" in their repository name
+# List images that contain the version number in their repository name
 IMAGES=$(docker images | grep "$VERSION" | awk '{print $1":"$2}')
 
 # Loop through the list of images, export each as a separate zip file, and collect the filenames
