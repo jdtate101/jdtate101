@@ -1,0 +1,17 @@
+  transforms:
+    - subject:
+        resource: persistentvolumeclaims
+      name: changeStorageClass
+      json:
+        - op: replace
+          path: /spec/storageClassName
+          value: gp2
+
+    - subject:
+        name: mongodb
+        resource: deployments
+      name: changetoroot
+      json:
+        - op: add
+          path: /spec/template/spec/securityContext/runAsUser
+          value: 0
