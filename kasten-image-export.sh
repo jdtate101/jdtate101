@@ -18,7 +18,7 @@ for image in ${IMAGES[@]}; do
     docker save -o "$zip_file" "$image"
     zip_files+=("$zip_file")
 done
-tgz_files=("$EXPORT_DIR"/*.tgz)
+
 # Create a single rolled-up zip file containing all individual zip files
 final_zip="kasten_images_$VERSION.zip"
 zip -j "$final_zip" "${zip_files[@]}"
