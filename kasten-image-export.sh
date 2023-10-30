@@ -27,6 +27,6 @@ zip -j "$final_zip" "${zip_files[@]}"
 rm -rf "$EXPORT_DIR"
 
 echo "Images exported as individual zip files and rolled up into '$final_zip'"
-echo "Cleaning up images....."
+echo "Cleaning up images in local docker registry....."
 for image in ${IMAGES[@]}; do
     docker rmi -f "$image"
