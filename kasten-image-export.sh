@@ -1,5 +1,7 @@
 #!/bin/bash
-echo "Enter version you want to export (format 5.0.5): "
+echo "This script will download the requested k10 version images as zip files, unify them into a split zip file and download the offline helm chart."
+echo "It assumes you have docker installed and also HELM, if you don't, please cntl-x and install those components.."
+echo "Enter kasten k10 version you want to export (format 5.0.5): "
 read VERSION < /dev/tty
 # Define the target directory for individual zip files
 EXPORT_DIR="image_exports"
