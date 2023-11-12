@@ -21,7 +21,7 @@ done
 
 # Create a single rolled-up zip file containing all individual zip files
 final_zip="kasten_images_$VERSION.zip"
-zip -j "$final_zip" "${zip_files[@]}"
+zip -s=2G -j "$final_zip" "${zip_files[@]}"
 
 # Clean up individual zip files
 rm -rf "$EXPORT_DIR"
@@ -30,3 +30,7 @@ echo "Images exported as individual zip files and rolled up into '$final_zip'"
 echo "Cleaning up images in local docker registry....."
 for image in ${IMAGES[@]}; do
     docker rmi -f "$image"
+done
+helm repo add kasten https://charts.kasten.io/
+helm repo update
+helm fetch kasten/k10 --version=$VERSION
