@@ -1,0 +1,143 @@
+apiVersion: cr.kanister.io/v1alpha1
+kind: Blueprint
+metadata:
+  name: postgres-start-stop
+actions:
+  backup:
+    kind: StatefulSet
+    deferPhase:
+      func: KubeOps
+      args:
+        operation: delete
+        objectReference:
+          apiVersion: v1
+          resource: "pods"
+          name: "{{ .Phases.createBackupPod.Output.name }}"
+          namespace: '{{ .StatefulSet.Namespace }}'
+
+    phases:
+    - name: createBackupPod
+      func: KubeOps
+      objects:
+        pgSecret:
+          kind: Secret
+          name: '{{ index .Object.metadata.labels "app.kubernetes.io/instance" }}-postgresql'
+          namespace: '{{ .StatefulSet.Namespace }}'
+      args:
+        operation: create
+        namespace: '{{ .StatefulSet.Namespace }}'
+        spec: |-
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            generateName: postgres-backup-session
+          spec:
+            restartPolicy: Never
+            containers:
+              - name: container
+                image: bitnami/postgresql:17
+                command:
+                - bash
+                - -o
+                - errexit
+                - -o
+                - pipefail
+                - -c
+                - |
+                  export PGHOST='{{ index .Object.metadata.labels "app.kubernetes.io/instance" }}-postgresql.{{ .StatefulSet.Namespace }}.svc.cluster.local'
+                  export PGUSER='postgres'
+                  export PGPASSWORD='{{ index .Phases.createBackupPod.Secrets.pgSecret.Data "postgres-password" | toString }}'
+                  mkfifo /tmp/pg_in
+                  while sleep 1; do :; done >/tmp/pg_in &
+                  echo $! > /tmp/holder_pid
+                  cat /tmp/pg_in | psql -U ${PGUSER} | tee /tmp/pg_out
+
+    - func: WaitV2
+      name: waitForPodReady
+      args:
+        timeout: 5m
+        conditions:
+          anyOf:
+          - condition: '{{ $available := false }}{{ range $condition := $.status.conditions }}{{ if and (eq .type "ContainersReady") (eq .status "True") }}{{ $available = true }}{{ end }}{{ end }}{{ $available }}'
+            objectReference:
+              apiVersion: "v1"
+              name: "{{ .Phases.createBackupPod.Output.name }}"
+              namespace: '{{ .StatefulSet.Namespace }}'
+              resource: "pods"
+
+    - name: startBackup
+      func: KubeExec
+      args:
+        namespace: '{{ .StatefulSet.Namespace }}'
+        pod: "{{ .Phases.createBackupPod.Output.name }}"
+        command:
+        - bash
+        - -o
+        - errexit
+        - -o
+        - pipefail
+        - -c
+        - |
+          echo "SELECT pg_backup_start(label => 'kanister_backup', fast => false);" > /tmp/pg_in
+          grep -q pg_backup_start <(tail -f /tmp/pg_out)
+
+    - name: stopBackup
+      func: KubeExec
+      args:
+        namespace: '{{ .StatefulSet.Namespace }}'
+        pod: "{{ .Phases.createBackupPod.Output.name }}"
+        command:
+        - bash
+        - -o
+        - errexit
+        - -o
+        - pipefail
+        - -c
+        - |
+          echo "SELECT * FROM pg_backup_stop(wait_for_archive => true);" > /tmp/pg_in
+          grep -q "LABEL: kanister_backup" <(tail -f /tmp/pg_out)
+
+  restore:
+    kind: StatefulSet
+    inputArtifactNames:
+    - cloudObject
+    phases:
+    - func: ScaleWorkload
+      name: ShutdownApplication
+      args:
+        namespace: '{{.StatefulSet.Namespace }}'
+        name: '{{ .StatefulSet.Name }}'
+        kind: StatefulSet
+        replicas: 0
+
+    - func: RestoreData
+      name: RestoreFromObjectStore
+      args:
+        namespace: '{{.StatefulSet.Namespace }}'
+        # pod: '{{ index .StatefulSet.Pods 0 }}'
+        volumes:
+          '{{ .ArtifactsIn.cloudObject.KeyValue.pvc }}': '/mnt/vol_data/{{ .ArtifactsIn.cloudObject.KeyValue.pvc }}'
+
+        image: ghcr.io/kanisterio/kanister-tools:0.110.0
+        backupArtifactPrefix: s3-bucket/path/artifactPrefix
+        backupTag: '{{ .ArtifactsIn.cloudObject.KeyValue.backupTag }}'
+
+    deferPhase:
+      func: ScaleWorkload
+      name: StartupApplication
+      args:
+        namespace: '{{.StatefulSet.Namespace }}'
+        name: '{{ .StatefulSet.Name }}'
+        kind: StatefulSet
+        replicas: '{{ len .StatefulSet.Pods }}'
+
+  delete:
+    inputArtifactNames:
+      - cloudObject
+    phases:
+    - func: DeleteData
+      name: deleteFromObjectStore
+      args:
+        namespace: '{{.StatefulSet.Namespace }}'
+        backupArtifactPrefix: s3-bucket/path/artifactPrefix
+        backupID: "{{ .ArtifactsIn.cloudObject.KeyValue.backupID }}"
