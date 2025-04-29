@@ -4,7 +4,6 @@ metadata:
   name: postgres-start-stop
   namespace: kasten-io
   uid: 57a395a9-94c3-4af1-9f3f-d5fafb8010c1
-  resourceVersion: "134456990"
   generation: 4
   creationTimestamp: 2025-04-17T09:31:03Z
   annotations:
