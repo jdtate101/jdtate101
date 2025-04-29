@@ -1,141 +1,158 @@
-apiVersion: cr.kanister.io/v1alpha1
 kind: Blueprint
+apiVersion: cr.kanister.io/v1alpha1
 metadata:
   name: postgres-start-stop
+  namespace: kasten-io
+  uid: 57a395a9-94c3-4af1-9f3f-d5fafb8010c1
+  resourceVersion: "134456990"
+  generation: 4
+  creationTimestamp: 2025-04-17T09:31:03Z
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"actions":{"backup":{"deferPhase":{"args":{"objectReference":{"apiVersion":"v1","name":"{{ .Phases.createBackupPod.Output.name }}","namespace":"{{ .StatefulSet.Namespace }}","resource":"pods"},"operation":"delete"},"func":"KubeOps"},"kind":"StatefulSet","phases":[{"args":{"namespace":"{{ .StatefulSet.Namespace }}","operation":"create","spec":"apiVersion: v1\nkind: Pod\nmetadata:\n  generateName: postgres-backup-session\nspec:\n  restartPolicy: Never\n  containers:\n    - name: container\n      image: bitnami/postgresql:17\n      command:\n      - bash\n      - -o\n      - errexit\n      - -o\n      - pipefail\n      - -c\n      - |\n        export PGHOST='{{ index .Object.metadata.labels \"app.kubernetes.io/instance\" }}-postgresql.{{ .StatefulSet.Namespace }}.svc.cluster.local'\n        export PGUSER='postgres'\n        export PGPASSWORD='{{ index .Phases.createBackupPod.Secrets.pgSecret.Data \"postgres-password\" | toString }}'\n        mkfifo /tmp/pg_in\n        while sleep 1; do :; done \u003e/tmp/pg_in \u0026\n        echo $! \u003e /tmp/holder_pid\n        cat /tmp/pg_in | psql -U ${PGUSER} | tee /tmp/pg_out"},"func":"KubeOps","name":"createBackupPod","objects":{"pgSecret":{"kind":"Secret","name":"{{ index .Object.metadata.labels \"app.kubernetes.io/instance\" }}-postgresql","namespace":"{{ .StatefulSet.Namespace }}"}}},{"args":{"conditions":{"anyOf":[{"condition":"{{ $available := false }}{{ range $condition := $.status.conditions }}{{ if and (eq .type \"ContainersReady\") (eq .status \"True\") }}{{ $available = true }}{{ end }}{{ end }}{{ $available }}","objectReference":{"apiVersion":"v1","name":"{{ .Phases.createBackupPod.Output.name }}","namespace":"{{ .StatefulSet.Namespace }}","resource":"pods"}}]},"timeout":"5m"},"func":"WaitV2","name":"waitForPodReady"},{"args":{"command":["bash","-o","errexit","-o","pipefail","-c","echo \"SELECT pg_backup_start(label =\u003e 'kanister_backup', fast =\u003e false);\" \u003e /tmp/pg_in\ngrep -q pg_backup_start \u003c(tail -f /tmp/pg_out)\n"],"namespace":"{{ .StatefulSet.Namespace }}","pod":"{{ .Phases.createBackupPod.Output.name }}"},"func":"KubeExec","name":"startBackup"},{"args":{"command":["bash","-o","errexit","-o","pipefail","-c","echo \"SELECT * FROM pg_backup_stop(wait_for_archive =\u003e true);\" \u003e /tmp/pg_in\ngrep -q \"LABEL: kanister_backup\" \u003c(tail -f /tmp/pg_out)\n"],"namespace":"{{ .StatefulSet.Namespace }}","pod":"{{ .Phases.createBackupPod.Output.name }}"},"func":"KubeExec","name":"stopBackup"}]},"delete":{"inputArtifactNames":["cloudObject"],"phases":[{"args":{"backupArtifactPrefix":"s3-bucket/path/artifactPrefix","backupID":"{{ .ArtifactsIn.cloudObject.KeyValue.backupID }}","namespace":"{{.StatefulSet.Namespace }}"},"func":"DeleteData","name":"deleteFromObjectStore"}]},"restore":{"deferPhase":{"args":{"kind":"StatefulSet","name":"{{ .StatefulSet.Name }}","namespace":"{{.StatefulSet.Namespace }}","replicas":"{{ len .StatefulSet.Pods }}"},"func":"ScaleWorkload","name":"StartupApplication"},"inputArtifactNames":["cloudObject"],"kind":"StatefulSet","phases":[{"args":{"kind":"StatefulSet","name":"{{ .StatefulSet.Name }}","namespace":"{{.StatefulSet.Namespace }}","replicas":0},"func":"ScaleWorkload","name":"ShutdownApplication"},{"args":{"backupArtifactPrefix":"s3-bucket/path/artifactPrefix","backupTag":"{{ .ArtifactsIn.cloudObject.KeyValue.backupTag }}","image":"ghcr.io/kanisterio/kanister-tools:0.110.0","namespace":"{{.StatefulSet.Namespace }}","volumes":{"{{ .ArtifactsIn.cloudObject.KeyValue.pvc }}":"/mnt/vol_data/{{ .ArtifactsIn.cloudObject.KeyValue.pvc }}"}},"func":"RestoreData","name":"RestoreFromObjectStore"}]}},"apiVersion":"cr.kanister.io/v1alpha1","kind":"Blueprint","metadata":{"annotations":{},"name":"postgres-start-stop","namespace":"kasten-io"}}
 actions:
   backup:
+    name: ""
     kind: StatefulSet
+    phases:
+      - func: KubeOps
+        name: createBackupPod
+        objects:
+          pgSecret:
+            apiVersion: ""
+            group: ""
+            resource: ""
+            kind: Secret
+            name: '{{ index .Object.metadata.labels "app.kubernetes.io/instance"
+              }}-postgresql'
+            namespace: "{{ .StatefulSet.Namespace }}"
+        args:
+          namespace: "{{ .StatefulSet.Namespace }}"
+          operation: create
+          spec: >-
+            apiVersion: v1
+
+            kind: Pod
+
+            metadata:
+              generateName: postgres-backup-session
+            spec:
+              restartPolicy: Never
+              containers:
+                - name: container
+                  image: bitnami/postgresql:17
+                  command:
+                  - bash
+                  - -o
+                  - errexit
+                  - -o
+                  - pipefail
+                  - -c
+                  - |
+                    export PGHOST='{{ index .Object.metadata.labels "app.kubernetes.io/instance" }}-postgresql.{{ .StatefulSet.Namespace }}.svc.cluster.local'
+                    export PGUSER='postgres'
+                    export PGPASSWORD='{{ index .Phases.createBackupPod.Secrets.pgSecret.Data "postgres-password" | toString }}'
+                    mkfifo /tmp/pg_in
+                    while sleep 1; do :; done >/tmp/pg_in &
+                    echo $! > /tmp/holder_pid
+                    cat /tmp/pg_in | psql -U ${PGUSER} | tee /tmp/pg_out
+      - func: WaitV2
+        name: waitForPodReady
+        args:
+          conditions:
+            anyOf:
+              - condition: '{{ $available := false }}{{ range $condition := $.status.conditions
+                  }}{{ if and (eq .type "ContainersReady") (eq .status "True")
+                  }}{{ $available = true }}{{ end }}{{ end }}{{ $available }}'
+                objectReference:
+                  apiVersion: v1
+                  name: "{{ .Phases.createBackupPod.Output.name }}"
+                  namespace: "{{ .StatefulSet.Namespace }}"
+                  resource: pods
+          timeout: 5m
+      - func: KubeExec
+        name: startBackup
+        args:
+          command:
+            - bash
+            - -o
+            - errexit
+            - -o
+            - pipefail
+            - -c
+            - >
+              echo "SELECT pg_backup_start(label => 'kanister_backup', fast =>
+              false);" > /tmp/pg_in
+
+              grep -q pg_backup_start <(tail -f /tmp/pg_out)
+          namespace: "{{ .StatefulSet.Namespace }}"
+          pod: "{{ .Phases.createBackupPod.Output.name }}"
+      - func: KubeExec
+        name: stopBackup
+        args:
+          command:
+            - bash
+            - -o
+            - errexit
+            - -o
+            - pipefail
+            - -c
+            - >
+              echo "SELECT * FROM pg_backup_stop(wait_for_archive => true);" >
+              /tmp/pg_in
+
+              grep -q "LABEL: kanister_backup" <(tail -f /tmp/pg_out)
+          namespace: "{{ .StatefulSet.Namespace }}"
+          pod: "{{ .Phases.createBackupPod.Output.name }}"
     deferPhase:
       func: KubeOps
+      name: ""
       args:
-        operation: delete
         objectReference:
           apiVersion: v1
-          resource: "pods"
           name: "{{ .Phases.createBackupPod.Output.name }}"
-          namespace: '{{ .StatefulSet.Namespace }}'
-
+          namespace: "{{ .StatefulSet.Namespace }}"
+          resource: pods
+        operation: delete
+  delete:
+    name: ""
+    kind: ""
+    inputArtifactNames:
+      - cloudObject
     phases:
-    - name: createBackupPod
-      func: KubeOps
-      objects:
-        pgSecret:
-          kind: Secret
-          name: '{{ index .Object.metadata.labels "app.kubernetes.io/instance" }}-postgresql'
-          namespace: '{{ .StatefulSet.Namespace }}'
-      args:
-        operation: create
-        namespace: '{{ .StatefulSet.Namespace }}'
-        spec: |-
-          apiVersion: v1
-          kind: Pod
-          metadata:
-            generateName: postgres-backup-session
-          spec:
-            restartPolicy: Never
-            containers:
-              - name: container
-                image: bitnami/postgresql:17
-                command:
-                - bash
-                - -o
-                - errexit
-                - -o
-                - pipefail
-                - -c
-                - |
-                  export PGHOST='{{ index .Object.metadata.labels "app.kubernetes.io/instance" }}-postgresql.{{ .StatefulSet.Namespace }}.svc.cluster.local'
-                  export PGUSER='postgres'
-                  export PGPASSWORD='{{ index .Phases.createBackupPod.Secrets.pgSecret.Data "postgres-password" | toString }}'
-                  mkfifo /tmp/pg_in
-                  while sleep 1; do :; done >/tmp/pg_in &
-                  echo $! > /tmp/holder_pid
-                  cat /tmp/pg_in | psql -U ${PGUSER} | tee /tmp/pg_out
-
-    - func: WaitV2
-      name: waitForPodReady
-      args:
-        timeout: 5m
-        conditions:
-          anyOf:
-          - condition: '{{ $available := false }}{{ range $condition := $.status.conditions }}{{ if and (eq .type "ContainersReady") (eq .status "True") }}{{ $available = true }}{{ end }}{{ end }}{{ $available }}'
-            objectReference:
-              apiVersion: "v1"
-              name: "{{ .Phases.createBackupPod.Output.name }}"
-              namespace: '{{ .StatefulSet.Namespace }}'
-              resource: "pods"
-
-    - name: startBackup
-      func: KubeExec
-      args:
-        namespace: '{{ .StatefulSet.Namespace }}'
-        pod: "{{ .Phases.createBackupPod.Output.name }}"
-        command:
-        - bash
-        - -o
-        - errexit
-        - -o
-        - pipefail
-        - -c
-        - |
-          echo "SELECT pg_backup_start(label => 'kanister_backup', fast => false);" > /tmp/pg_in
-          grep -q pg_backup_start <(tail -f /tmp/pg_out)
-
-    - name: stopBackup
-      func: KubeExec
-      args:
-        namespace: '{{ .StatefulSet.Namespace }}'
-        pod: "{{ .Phases.createBackupPod.Output.name }}"
-        command:
-        - bash
-        - -o
-        - errexit
-        - -o
-        - pipefail
-        - -c
-        - |
-          echo "SELECT * FROM pg_backup_stop(wait_for_archive => true);" > /tmp/pg_in
-          grep -q "LABEL: kanister_backup" <(tail -f /tmp/pg_out)
-
+      - func: DeleteData
+        name: deleteFromObjectStore
+        args:
+          backupArtifactPrefix: s3-bucket/path/artifactPrefix
+          backupID: "{{ .ArtifactsIn.cloudObject.KeyValue.backupID }}"
+          namespace: "{{.StatefulSet.Namespace }}"
   restore:
+    name: ""
     kind: StatefulSet
     inputArtifactNames:
-    - cloudObject
+      - cloudObject
     phases:
-    - func: ScaleWorkload
-      name: ShutdownApplication
-      args:
-        namespace: '{{.StatefulSet.Namespace }}'
-        name: '{{ .StatefulSet.Name }}'
-        kind: StatefulSet
-        replicas: 0
-
-    - func: RestoreData
-      name: RestoreFromObjectStore
-      args:
-        namespace: '{{.StatefulSet.Namespace }}'
-        # pod: '{{ index .StatefulSet.Pods 0 }}'
-        volumes:
-          '{{ .ArtifactsIn.cloudObject.KeyValue.pvc }}': '/mnt/vol_data/{{ .ArtifactsIn.cloudObject.KeyValue.pvc }}'
-
-        image: ghcr.io/kanisterio/kanister-tools:0.110.0
-        backupTag: '{{ .ArtifactsIn.cloudObject.KeyValue.backupTag }}'
-
+      - func: ScaleWorkload
+        name: ShutdownApplication
+        args:
+          kind: StatefulSet
+          name: "{{ .StatefulSet.Name }}"
+          namespace: "{{.StatefulSet.Namespace }}"
+          replicas: 0
+      - func: RestoreData
+        name: RestoreFromObjectStore
+        args:
+          backupArtifactPrefix: s3-bucket/path/artifactPrefix
+          backupTag: "{{ .ArtifactsIn.cloudObject.KeyValue.backupTag }}"
+          image: ghcr.io/kanisterio/kanister-tools:0.110.0
+          namespace: "{{.StatefulSet.Namespace }}"
+          volumes:
+            "{{ .ArtifactsIn.cloudObject.KeyValue.pvc }}": /mnt/vol_data/{{ .ArtifactsIn.cloudObject.KeyValue.pvc }}
     deferPhase:
       func: ScaleWorkload
       name: StartupApplication
       args:
-        namespace: '{{.StatefulSet.Namespace }}'
-        name: '{{ .StatefulSet.Name }}'
         kind: StatefulSet
-        replicas: '{{ len .StatefulSet.Pods }}'
-
-  delete:
-    inputArtifactNames:
-      - cloudObject
-    phases:
-    - func: DeleteData
-      name: deleteFromObjectStore
-      args:
-        namespace: '{{.StatefulSet.Namespace }}'
-        backupID: "{{ .ArtifactsIn.cloudObject.KeyValue.backupID }}"
+        name: "{{ .StatefulSet.Name }}"
+        namespace: "{{.StatefulSet.Namespace }}"
+        replicas: "{{ len .StatefulSet.Pods }}"
