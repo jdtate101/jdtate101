@@ -9,7 +9,7 @@ csi:
 defaultSettings:
   defaultReplicaCount: 1
   defaultDataPath: /longhorn/
-  #storageOverProvisioningPercentage: "1000"
+  storageOverProvisioningPercentage: 1000
 ingress:
   enabled: true
   ingressClassName: traefik
