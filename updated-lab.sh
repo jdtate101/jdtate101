@@ -137,19 +137,18 @@ echo -e "$W "
 sleep 5
 echo -e "$G"
 echo ""
-echo "Now deploying sample pacman application..."
+echo "Now deploying sample navidrome application..."
 echo -e "$W"
-kubectl create ns pacman
-helm repo add pacman https://shuguet.github.io/pacman/
-helm install pacman pacman/pacman -n pacman
+kubectl create ns music
+helm install mychart oci://oci.trueforge.org/truecharts/navidrome -n music
 echo -e "$R"
-echo "Waiting for pacman app to become available..please wait!"
+echo "Waiting for navidrome app to become available..please wait!"
 sleep 5
-curl https://raw.githubusercontent.com/jdtate101/jdtate101/main/pacman-ingress.yaml > pacman-ingress.yaml
-kubectl apply -f pacman-ingress.yaml -n pacman
+curl https://raw.githubusercontent.com/jdtate101/jdtate101/main/music-ingress.yaml > music-ingress.yaml
+kubectl apply -f music-ingress.yaml -n music
 echo -e "$G"
 echo ""
-echo "Pacman application is exposed using an ingress rule. Please create a entry in your desktop /etc/hosts file or local DNS to point towards $ip for pacman.local"
+echo "Navidrome application is exposed using an ingress rule. Please create a entry in your desktop /etc/hosts file or local DNS to point towards $ip for pacman.local"
 echo "You can then access the pacman app on http://pacman.local"
 echo ""
 echo "The longhorn dashboard UI is available at http://longhorn.local . Please create an entry in the host file to access, much in the same fashion as you just did for the pacman app."
