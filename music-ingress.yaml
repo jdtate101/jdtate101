@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: music-ingress
+  namespace: music
+spec:
+  rules:
+    - host: music.local
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: mychart-navidrome
+                port:
+                  number: 4533
