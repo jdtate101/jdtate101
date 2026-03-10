@@ -148,10 +148,10 @@ curl https://raw.githubusercontent.com/jdtate101/jdtate101/main/music-ingress.ya
 kubectl apply -f music-ingress.yaml -n music
 echo -e "$G"
 echo ""
-echo "Navidrome application is exposed using an ingress rule. Please create a entry in your desktop /etc/hosts file or local DNS to point towards $ip for pacman.local"
-echo "You can then access the pacman app on http://pacman.local"
+echo "Navidrome application is exposed using an ingress rule. Please create a entry in your desktop /etc/hosts file or local DNS to point towards $ip for music.local"
+echo "You can then access the navidrome app on http://music.local"
 echo ""
-echo "The longhorn dashboard UI is available at http://longhorn.local . Please create an entry in the host file to access, much in the same fashion as you just did for the pacman app."
+echo "The longhorn dashboard UI is available at http://longhorn.local . Please create an entry in the host file to access, much in the same fashion as you just did for the navidrome app."
 echo -e "$W"
 echo ""
 sleep 2
